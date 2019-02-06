@@ -113,8 +113,8 @@ d3.csv("/assets/data/data.csv").then(function(stateData) {
         toolTip.show(data, this);
     })
 
-    // Add an onmousout    
-    .on("mouseoot", function(data, index) {
+    // Add an on mouseout    
+    .on("mouseout", function(data, index) {
         toolTip.hide(data);
     });
 
