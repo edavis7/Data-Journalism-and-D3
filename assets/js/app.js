@@ -1,5 +1,5 @@
-// Step 1: Set up our chart
-//= ================================
+// Set up our chart
+// ================================
 var svgWidth = 960;
 var svgHeight = 500;
 
@@ -13,7 +13,7 @@ var margin = {
 var width = svgWidth - margin.left - margin.right;
 var height = svgHeight - margin.top - margin.bottom;
 
-// Step 2: Create an SVG wrapper,
+// Create an SVG wrapper,
 // append an SVG group that will hold our chart,
 // =================================
 var svg = d3.select("#scatter")
@@ -24,10 +24,9 @@ var svg = d3.select("#scatter")
 var chartGroup = svg.append("g")
   .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-  // Step 3:
 // Import data from the data.csv file
 // =================================
-d3.csv("assets/data/data.csv").then(function(stateData) {
+d3.csv("/assets/data/data.csv").then(function(stateData) {
 // Format the data
     stateData.forEach(function(data) {
         data.proverty = +data.proverty;
@@ -47,7 +46,7 @@ d3.csv("assets/data/data.csv").then(function(stateData) {
     var bottomAxis = d3.axisBottom(xLinearScale);
     var leftAxis = d3.axisLeft(yLinearScale1);  
 
-// Add x-axis
+// Add axis
     chartGroup.append("g")
         .attr("transform", `translate(0, ${height})`)
         .call(bottomAxis);
@@ -66,24 +65,39 @@ d3.csv("assets/data/data.csv").then(function(stateData) {
         .attr("opacity", ".5")
         .attr("stroke", "black");    
 
-    chartGroup.append("text")
-        .style("font-family", "corbel")
-        .style("text-anchor", "middle")
-        .style(("font-size", "8px")
-        .selectAll("tspan")
+    var circlesLabel = chartGroup.selectAll(".fill-text")
         .data(stateData)
         .enter()
-        .append("tspan")
-        .attr("x", function(data){
-            return xLinearScale(data.proverty);
-        })
-        .attr("y", function(data){
-            return yLinearScale(data.healthcare -.02);
-        })
-        .text(function(data) {
-            return data.attr
-        });    
+        .append("text")
+        .text(d => d.attr)
+        .attr("x", d => xLinearScale(d.proverty)-8)
+        .attr("y", d => yLinearScale(d.healthcare)+2)
+        .attr("font-size", "8px")
+        .attr("font-family", "sans-serif")
+        .attr("fill", "black")
+        .classed("fill-text", true);  
 
+    var labelGroup = chartGroup.append("g")
+        .attr("transform", `translate(${width / 2.5}. ${height + 30})`);
+
+    var healthcareLabel = labelGroup.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("x", 200)
+        .attr("y", -600)
+        .style("text-anchor", "middle")
+        .attr("value", "healthcare")
+        .classed("active", true)
+        .text("Lacks Healthcare (%)");    
+
+    var provertyLabel = labelGroup.append("text")
+        .attr("x", 0)
+        .attr("y", 20)
+        .attr("value", "proverty")
+        .attr("value", "healthcare")
+        .classed("active", true)
+        .text("Popluation In Poverty (%)");     
+
+// Initalize Tooltip
     var toolTip = d3.tip()
         .attr("class", "tooltip")
         .offset([80, -60])
@@ -104,16 +118,5 @@ d3.csv("assets/data/data.csv").then(function(stateData) {
         toolTip.hide(data);
     });
 
-    chartGroup.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("x", 0 - (height / 1.30))
-        .attr("y", 0 - margin.left + 40)
-        .attr("dy", "lem")
-        .attr("class", "axisText")
-        .text("Lacks Healthcare (%)");    
-
-    chartGroup.append("text")
-        .attr("transform", `translate(${width / 2.5}. ${height + margin.top + 30})`)
-        .attr("class", "axisText")
-        .text("Popluation In Poverty (%)"); 
+    
 });
