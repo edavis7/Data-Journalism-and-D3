@@ -5,7 +5,7 @@ var svgHeight = 500;
 
 var margin = {
   top: 20,
-  right: 40,
+  right: 50,
   bottom: 60,
   left: 50
 };
@@ -29,22 +29,22 @@ var chartGroup = svg.append("g")
 d3.csv("/assets/data/data.csv").then(function(stateData) {
 // Format the data
     stateData.forEach(function(data) {
-        data.proverty = +data.proverty;
+        data.poverty = +data.poverty;
         data.healthcare = +data.healthcare;
   });
 
 // Create scaling functions   
     var xLinearScale = d3.scaleLinear()
-        .domain([5, d3.max(stateData, d => d.proverty)])
+        .domain([9, d3.max(stateData, d => d.poverty)])
         .range([0, width]);
 
     var yLinearScale = d3.scaleLinear()
-        .domain([0, d3.max(stateData, d => d.healthcare)])
+        .domain([4, d3.max(stateData, d => d.healthcare)])
         .range([height, 0]);
 
 // Create axis functions
     var bottomAxis = d3.axisBottom(xLinearScale);
-    var leftAxis = d3.axisLeft(yLinearScale1);  
+    var leftAxis = d3.axisLeft(yLinearScale);  
 
 // Add axis
     chartGroup.append("g")
@@ -58,49 +58,38 @@ d3.csv("/assets/data/data.csv").then(function(stateData) {
         .data(stateData)
         .enter()
         .append("circle")
-        .attr("cx", d => xLinearScale(d.proverty))
+        .attr("cx", d => xLinearScale(d.poverty))
         .attr("cy", d => yLinearScale(d.healthcare))
-        .attr("r", "10")
+        .attr("r", 10)
         .attr("fill", "lightblue")
         .attr("opacity", ".5")
-        .attr("stroke", "black");    
+        .attr("stroke", "white");    
 
-    var circlesLabel = chartGroup.selectAll(".fill-text")
+        chartGroup.append("text")
+        .style("text-anchor", "middle")
+        .style("font-family", "sans-serif")
+        .style("font-size", "8px")
+        .selectAll("tspan")
         .data(stateData)
         .enter()
-        .append("text")
-        .text(d => d.attr)
-        .attr("x", d => xLinearScale(d.proverty)-8)
-        .attr("y", d => yLinearScale(d.healthcare)+2)
-        .attr("font-size", "8px")
-        .attr("font-family", "sans-serif")
-        .attr("fill", "black")
-        .classed("fill-text", true);  
-
-    var labelGroup = chartGroup.append("g")
-        .attr("transform", `translate(${width / 2.5}. ${height + 30})`);
-
-    var healthcareLabel = labelGroup.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("x", 200)
-        .attr("y", -600)
-        .style("text-anchor", "middle")
-        .attr("value", "healthcare")
-        .classed("active", true)
-        .text("Lacks Healthcare (%)");    
-
-    var provertyLabel = labelGroup.append("text")
-        .attr("x", 0)
-        .attr("y", 20)
-        .attr("value", "proverty")
-        .attr("value", "healthcare")
-        .classed("active", true)
-        .text("Popluation In Poverty (%)");     
+        .append("tspan")
+        .attr("x", function(data) {
+            return xLinearScale(data.poverty);
+        })
+        .attr("y", function(data) {
+            return yLinearScale(data.healthcare -.02);
+        })
+        .text(function(data) {
+            return data.abbr
+        });
 
 // Initalize Tooltip
     var toolTip = d3.tip()
         .attr("class", "tooltip")
-        .offset([80, -60])
+        .offset([80, -70])
+        .style("position", "absolute")
+        .style("background", "lightsteelblue")
+        .style("pointer-events", "none")
         .html(function(d) {
             return (`${d.state}<br>Population In Poverty (%): ${d.poverty}<br>Lacks Healthcare (%): ${d.healthcare}`)
         });      
@@ -118,5 +107,18 @@ d3.csv("/assets/data/data.csv").then(function(stateData) {
         toolTip.hide(data);
     });
 
+    // Create axes labels  
+    chartGroup.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left - 5)
+        .attr("x", 0 - (height / 1.30))
+        .attr("dy", "1em")
+        .attr("class", "axisText")
+        .text("Lacks Healthcare (%)");
+
+    chartGroup.append("text")
+        .attr("transform", `translate(${width / 2.5}, ${height + margin.top + 30})`)
+        .attr("class", "axisText")
+        .text("In Poverty (%)");
     
 });
